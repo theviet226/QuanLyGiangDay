@@ -17,11 +17,11 @@ export const renderPersons = (persons) => {
                 <td>${person.email}</td>
                 <td>${person.type}</td>
                 <td>
-                    <button class="btn btn-primary view-info-btn" data-person-name="${person.name}">Xem thông tin</button>
+                    <button class="btn btn-success view-info-btn" data-person-name="${person.name}">Xem thông tin</button>
                 </td>
                 <td>
                 <button class="btn btn-primary btn-sm btn-userinfo" data-person-name="${person.name}" data-toggle="modal"
-                data-target="#myModal"><i class="fa-solid fa-magnifying-glass"></i></button>
+                data-target="#myModal"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button  class="btn btn-danger btn-sm btn-delete" data-person-name="${person.name}"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
@@ -70,27 +70,27 @@ const handleViewInfo = (event) => {
                 </div>  
             `;
             
-        } else if (person instanceof Employee) {
+        } else if (person.type === "Nhân viên") {
             popupSubtitle = "Nhân viên";
             popupContent = `
                 <label for="field1">Số ngày làm việc :</label>
-                <input type="text" id="field1" value="${person.workDays}" disabled>
+                <input type="text" id="field1" value="${person.soNgayLam}" disabled>
                 <label for="field2">Lương theo ngày :</label>
-                <input type="text" id="field2" value="${person.dailySalary}" disabled>
+                <input type="text" id="field2" value="${person.luong}" disabled>
                 <label for="field3">Tổng lương:</label>
                 <div class="alert alert-warning" role="alert">
-                    👉<span id="txtArray">${person.getSalary()}</span>
+                    👉<span id="txtArray">${person.salary}</span>
                 </div>  
             `;
-        } else if (person instanceof Customer) {
+        } else if (person.type === "Khách hàng") {
             popupSubtitle = "Khách hàng";
             popupContent = `
                 <label for="field1">Tên công ty :</label>
-                <input type="text" id="field1" value="${person.companyName}" disabled>
+                <input type="text" id="field1" value="${person.tenCongTy}" disabled>
                 <label for="field2">Trị giá hoá đơn :</label>
-                <input type="text" id="field2" value="${person.orderValue}" disabled>
+                <input type="text" id="field2" value="${person.giaHoaDon}" disabled>
                 <label for="field3">Đánh giá :</label>
-                <input type="text" id="field3" value="${person.rating}" disabled>   
+                <input type="text" id="field3" value="${person.danhGia}" disabled>   
             `;
         }
         console.log(popupContent)
@@ -111,7 +111,7 @@ const handleDeletePerson = (event) => {
             listPerson.removePerson(person.id);
             listPerson.saveToLocalStorage();
             showNotification("Xoá thành công", true);
-            renderPersons();
+            renderPersons(listPerson.persons);
         }
     }
 };
@@ -124,28 +124,37 @@ const handleShowUser = (event) => {
         const index = listPerson.findIndex(person.id);
 
         if (index > -1) {
+            // listPerson.loadFromLocalStorage(); // Tải danh sách người dùng từ local storage
+
             const userInfo = listPerson.persons[index];
+            console.log(userInfo)
 
             document.getElementById('txtName').value = userInfo.name;
             document.getElementById('txtDiaChi').value = userInfo.address;
             document.getElementById('txtMa').value = userInfo.id;
             document.getElementById('txtEmail').value = userInfo.email;
             document.getElementById('loaiND').value = userInfo.type;
+            window.showFields('loaiND');
 
-            if (userInfo instanceof Student) {
-                document.getElementById('txtDiemToan').value = userInfo.math;
-                document.getElementById('txtDiemLy').value = userInfo.physics;
-                document.getElementById('txtDiemHoa').value = userInfo.chemistry;
-            } else if (userInfo instanceof Employee) {
-                document.getElementById('txtNgayLam').value = userInfo.workDays;
-                document.getElementById('txtLuong').value = userInfo.dailySalary;
-            } else if (userInfo instanceof Customer) {
-                document.getElementById('txtTenCT').value = userInfo.companyName;
-                document.getElementById('txtTriGiaHD').value = userInfo.orderValue;
-                document.getElementById('txtDanhGia').value = userInfo.rating;
+            if (userInfo.type === "Học viên") {
+                document.getElementById('txtDiemToan').value = userInfo.toan;
+                document.getElementById('txtDiemLy').value = userInfo.ly;
+                document.getElementById('txtDiemHoa').value = userInfo.hoa;
+            } else if (userInfo.type === "Nhân viên") {
+                document.getElementById('txtNgayLam').value = userInfo.soNgayLam;
+                document.getElementById('txtLuong').value = userInfo.luong;
+            } else if (userInfo.type === "Khách hàng") {
+                document.getElementById('txtTenCT').value = userInfo.tenCongTy;
+                document.getElementById('txtTriGiaHD').value = userInfo.giaHoaDon;
+                document.getElementById('txtDanhGia').value = userInfo.danhGia;
             }
         }
     }
+};
+
+export const resetForm = () =>{
+    document.getElementById("form").reset();
+
 }
 
 
@@ -178,111 +187,6 @@ const showPopup = (personName, popupSubtitle, popupContent) => {
     document.body.appendChild(popup);
 };
 
-const filterByType = () => {
-    const selectElement = document.getElementById('shortND');
-    const selectedType = selectElement.value;
-
-    // Lấy danh sách người dùng từ local storage
-    const storedPersons = localStorage.getItem('persons');
-    let persons = [];
-
-    if (storedPersons) {
-        persons = JSON.parse(storedPersons);
-    }
-
-    // Lọc danh sách người dùng theo loại
-    let filteredPersons = [];
-    if (selectedType === 'ALL') {
-        filteredPersons = persons; // Hiển thị tất cả người dùng
-    } else {
-        filteredPersons = persons.filter(person => person.type === selectedType);
-    }
-
-    // Hiển thị danh sách người dùng đã lọc
-    console.log(filteredPersons)
-    renderPersons(filteredPersons);
-};
-
-// Sự kiện lắng nghe khi select box thay đổi giá trị
-const selectElement = document.getElementById('shortND');
-selectElement.addEventListener('change', filterByType);
-
-
-let sortOrder = 'asc'; // Đánh dấu trạng thái sắp xếp hiện tại
-
-const sortByNameBtn = document.getElementById('sortByNameBtn');
-const sortArrowIcon = document.getElementById('sortArrowIcon');
-
-sortByNameBtn.addEventListener('click', sortPersonsByName);
-
-function sortPersonsByName() {
-    // Lấy danh sách người dùng từ local storage
-    const storedPersons = localStorage.getItem('persons');
-    let persons = [];
-
-    if (storedPersons) {
-        persons = JSON.parse(storedPersons);
-    }
-
-    // Sắp xếp danh sách người dùng theo họ tên
-    if (sortOrder === 'asc') {
-        persons.sort((a, b) => {
-            const nameA = a.name.toUpperCase();
-            const nameB = b.name.toUpperCase();
-            if (nameA < nameB) {
-                return -1;
-            }
-            if (nameA > nameB) {
-                return 1;
-            }
-            return 0;
-        });
-        sortOrder = 'desc'; // Chuyển sang trạng thái sắp xếp giảm dần
-        sortArrowIcon.classList.remove('fa-sort-down');
-        sortArrowIcon.classList.add('fa-sort-up');
-    } else {
-        persons.sort((a, b) => {
-            const nameA = a.name.toUpperCase();
-            const nameB = b.name.toUpperCase();
-            if (nameA > nameB) {
-                return -1;
-            }
-            if (nameA < nameB) {
-                return 1;
-            }
-            return 0;
-        });
-        sortOrder = 'asc'; // Chuyển sang trạng thái sắp xếp tăng dần
-        sortArrowIcon.classList.remove('fa-sort-up');
-        sortArrowIcon.classList.add('fa-sort-down');
-    }
-
-    // Hiển thị danh sách người dùng đã sắp xếp
-    renderPersons(persons);
-}
-
-
-const searchInput = document.getElementById('search');
-
-searchInput.addEventListener('input', searchPersonsByName);
-
-function searchPersonsByName() {
-    const keyword = searchInput.value.toLowerCase();
-
-    // Lấy danh sách người dùng từ local storage
-    const storedPersons = localStorage.getItem('persons');
-    let persons = [];
-
-    if (storedPersons) {
-        persons = JSON.parse(storedPersons);
-    }
-
-    // Lọc danh sách người dùng theo tên
-    const searchPerson = persons.filter(person => person.name.toLowerCase().includes(keyword));
-
-    // Hiển thị danh sách người dùng đã lọc
-    renderPersons(searchPerson);
-}
 
 
 

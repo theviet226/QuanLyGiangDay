@@ -4,7 +4,7 @@ export class Person {
         this.address = address;
         this.id = id;
         this.email = email;
-        this.type = "Học viên"
+        
     }
     
 }

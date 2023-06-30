@@ -53,20 +53,20 @@ class ListPerson {
         this.persons = this.persons.filter(person => person.id !== id);
     }
 
-    // updatePerson(id, updatedPerson) {
-    //     const index = this.persons.findIndex(person => person.id === id);
-    //     if (index !== -1) {
-    //         this.persons[index] = updatedPerson;
-    //     }
-    // }
+    updatePerson(id, updatedPerson) {
+        const index = this.persons.findIndex(person => person.id === id);
+        if (index !== -1) {
+            this.persons[index] = updatedPerson;
+        }
+    }
 
-    // sortPersonsByName() {
-    //     this.persons.sort((a, b) => a.name.localeCompare(b.name));
-    // }
+    sortPersonsByName() {
+        this.persons.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
-    // filterPersonsByType(type) {
-    //     return this.persons.filter(person => person instanceof type);
-    // }
+    filterPersonsByType(type) {
+        return this.persons.filter(person => person instanceof type);
+    }
 }
 
 // Tạo đối tượng ListPerson

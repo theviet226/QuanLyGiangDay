@@ -6,6 +6,7 @@ export class Student extends Person {
         this.toan = toan;
         this.ly = ly;
         this.hoa = hoa;
+        this.type = "Học viên"
     }
     get math() {
         return this.toan;

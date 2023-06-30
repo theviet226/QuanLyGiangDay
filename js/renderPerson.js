@@ -1,7 +1,4 @@
 import { listPerson } from "./main.js"
-import { Student } from "./Student.js"
-import { Employee } from "./Employee.js"
-import { Customer } from "./Customer.js"
 import { showNotification } from "./showNotification.js"
 
 
@@ -43,11 +40,13 @@ export const renderPersons = (persons) => {
     })
 }
 
+
+//Xử lý nút xem thông tin của từng loại người dùng
 const handleViewInfo = (event) => {
-    event.preventDefault(); // Ngăn chặn hành vi mặc định của nút
+    event.preventDefault(); 
     const personName = event.target.dataset.personName;
     const storedPersons = localStorage.getItem('persons');
-    
+
     if (storedPersons) {
         const persons = JSON.parse(storedPersons);
         const person = persons.find(p => p.name === personName);
@@ -69,7 +68,7 @@ const handleViewInfo = (event) => {
                     👉<span id="txtArray">${person.TB}</span>
                 </div>  
             `;
-            
+
         } else if (person.type === "Nhân viên") {
             popupSubtitle = "Nhân viên";
             popupContent = `
@@ -101,65 +100,6 @@ const handleViewInfo = (event) => {
     }
 }
 
-const handleDeletePerson = (event) => {
-    const personName = event.currentTarget.dataset.personName;
-    const person = listPerson.persons.find(p => p.name === personName);
-
-    if (person) {
-        const confirmation = confirm("Bạn có muốn xoá người dùng?");
-        if (confirmation) {
-            listPerson.removePerson(person.id);
-            listPerson.saveToLocalStorage();
-            showNotification("Xoá thành công", true);
-            renderPersons(listPerson.persons);
-        }
-    }
-};
-
-const handleShowUser = (event) => {
-    const personName = event.currentTarget.dataset.personName;
-    const person = listPerson.persons.find(p => p.name === personName);
-
-    if (person) {
-        const index = listPerson.findIndex(person.id);
-
-        if (index > -1) {
-            // listPerson.loadFromLocalStorage(); // Tải danh sách người dùng từ local storage
-
-            const userInfo = listPerson.persons[index];
-            console.log(userInfo)
-
-            document.getElementById('txtName').value = userInfo.name;
-            document.getElementById('txtDiaChi').value = userInfo.address;
-            document.getElementById('txtMa').value = userInfo.id;
-            document.getElementById('txtEmail').value = userInfo.email;
-            document.getElementById('loaiND').value = userInfo.type;
-            window.showFields('loaiND');
-
-            if (userInfo.type === "Học viên") {
-                document.getElementById('txtDiemToan').value = userInfo.toan;
-                document.getElementById('txtDiemLy').value = userInfo.ly;
-                document.getElementById('txtDiemHoa').value = userInfo.hoa;
-            } else if (userInfo.type === "Nhân viên") {
-                document.getElementById('txtNgayLam').value = userInfo.soNgayLam;
-                document.getElementById('txtLuong').value = userInfo.luong;
-            } else if (userInfo.type === "Khách hàng") {
-                document.getElementById('txtTenCT').value = userInfo.tenCongTy;
-                document.getElementById('txtTriGiaHD').value = userInfo.giaHoaDon;
-                document.getElementById('txtDanhGia').value = userInfo.danhGia;
-            }
-        }
-    }
-};
-
-export const resetForm = () =>{
-    document.getElementById("form").reset();
-
-}
-
-
-
-
 const showPopup = (personName, popupSubtitle, popupContent) => {
     const popupHTML = `
         <div class="popup-overlay">
@@ -186,6 +126,60 @@ const showPopup = (personName, popupSubtitle, popupContent) => {
 
     document.body.appendChild(popup);
 };
+
+//Xử lý nút xoá
+const handleDeletePerson = (event) => {
+    const personName = event.currentTarget.dataset.personName;
+    const person = listPerson.persons.find(p => p.name === personName);
+
+    if (person) {
+        const confirmation = confirm("Bạn có muốn xoá người dùng?");
+        if (confirmation) {
+            listPerson.removePerson(person.id);
+            listPerson.saveToLocalStorage();
+            showNotification("Xoá thành công", true);
+            renderPersons(listPerson.persons);
+        }
+    }
+};
+
+
+//Xử lý nút sửa thông tin
+const handleShowUser = (event) => {
+    const personName = event.currentTarget.dataset.personName;
+    const person = listPerson.persons.find(p => p.name === personName);
+
+    if (person) {
+        const index = listPerson.persons.findIndex(person => person.id === person.id);
+
+        if (index > -1) {
+            const userInfo = listPerson.persons[index];
+            document.getElementById('txtName').value = userInfo.name;
+            document.getElementById('txtDiaChi').value = userInfo.address;
+            document.getElementById('txtMa').value = userInfo.id;
+            document.getElementById('txtEmail').value = userInfo.email;
+            document.getElementById('loaiND').value = userInfo.type;
+            window.showFields('loaiND');
+
+            if (userInfo.type === "Học viên") {
+                document.getElementById('txtDiemToan').value = userInfo.toan;
+                document.getElementById('txtDiemLy').value = userInfo.ly;
+                document.getElementById('txtDiemHoa').value = userInfo.hoa;
+            } else if (userInfo.type === "Nhân viên") {
+                document.getElementById('txtNgayLam').value = userInfo.soNgayLam;
+                document.getElementById('txtLuong').value = userInfo.luong;
+            } else if (userInfo.type === "Khách hàng") {
+                document.getElementById('txtTenCT').value = userInfo.tenCongTy;
+                document.getElementById('txtTriGiaHD').value = userInfo.giaHoaDon;
+                document.getElementById('txtDanhGia').value = userInfo.danhGia;
+            }
+            listPerson.saveToLocalStorage();
+        }
+    }
+};
+
+
+
 
 
 

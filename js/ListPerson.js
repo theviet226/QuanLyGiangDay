@@ -11,23 +11,16 @@ export class ListPerson {
         this.persons = this.persons.filter(person => person.id !== id);
     }
     findIndex(id) {
-        let indexND = -1;
-        this.persons.map((nd, index) => {
-            if (nd.id === id) {
-                indexND = index;
-            }
-        });
-        return indexND;
+        return this.persons.findIndex(person => person.id === id);
     }
-    updatePerson(person) {
-        const index = this.findIndex(person.id);
-        if (index > -1) {
-            this.persons[index] = person;
-            return true;
-        }else{
-            return false;
+
+    updatePerson(id, updatedPerson) {
+        const index = this.persons.findIndex(person => person.id === id);
+        if (index !== -1) {
+            this.persons[index] = updatedPerson;
         }
     }
+
     filterByType(selectedType) {
         if (selectedType === 'ALL') {
             return this.persons;

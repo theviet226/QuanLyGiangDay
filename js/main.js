@@ -4,7 +4,7 @@ import { Employee } from "./Employee.js"
 import { Customer } from "./Customer.js"
 import { ListPerson } from "./ListPerson.js"
 import { renderPersons } from "./renderPerson.js"
-import { resetForm } from "./renderPerson.js"
+
 
 
 
@@ -45,8 +45,13 @@ const addPerson = () => {
 };
 document.getElementById("btnThemND").addEventListener("click", addPerson);
 
+
+//Cập nhập người dùng
 const updatePerson = () => {
-    // Lấy thông tin người dùng từ giao diện
+    listPerson.loadFromLocalStorage(); 
+    console.log(listPerson)
+
+   
     const id = document.getElementById('txtMa').value;
     const name = document.getElementById('txtName').value;
     const address = document.getElementById('txtDiaChi').value;
@@ -56,14 +61,16 @@ const updatePerson = () => {
     let person;
 
     if (type === 'Học viên') {
-        const math = document.getElementById('txtDiemToan').value;
-        const physics = document.getElementById('txtDiemLy').value;
-        const chemistry = document.getElementById('txtDiemHoa').value;
+        const math = +document.getElementById('txtDiemToan').value;
+        const physics = +document.getElementById('txtDiemLy').value;
+        const chemistry = +document.getElementById('txtDiemHoa').value;   
         person = new Student(id, name, address, email, math, physics, chemistry);
+        person.getAverage();
     } else if (type === 'Nhân viên') {
-        const workDays = document.getElementById('txtNgayLam').value;
-        const dailySalary = document.getElementById('txtLuong').value;
+        const workDays = +document.getElementById('txtNgayLam').value;
+        const dailySalary = +document.getElementById('txtLuong').value;
         person = new Employee(id, name, address, email, workDays, dailySalary);
+        person.getSalary();
     } else if (type === 'Khách hàng') {
         const companyName = document.getElementById('txtTenCT').value;
         const orderValue = document.getElementById('txtTriGiaHD').value;
@@ -71,37 +78,34 @@ const updatePerson = () => {
         person = new Customer(id, name, address, email, companyName, orderValue, rating);
     }
 
-    // Tải danh sách người dùng từ local storage
-    
 
-    // Cập nhật thông tin người dùng
-    listPerson.updatePerson(person);
-    console.log(person)
+    const isUpdated = listPerson.updatePerson(person);
+    console.log(isUpdated)
 
-    // Lưu danh sách người dùng vào local storage
-    listPerson.saveToLocalStorage();
-
-    // Hiển thị thông báo và cập nhật danh sách người dùng
-    
-    renderPersons(listPerson.persons);
-    resetForm();
-    showNotification('Cập nhật thành công', true);
+    if (isUpdated) {
+        listPerson.saveToLocalStorage();
+        renderPersons(listPerson.persons);
+        resetForm();
+        showNotification('Cập nhật thành công', true);
+    } else {
+        showNotification('Không tìm thấy người dùng', false);
+    }
 };
-
-
-// Gọi hàm updatePerson khi nhấn nút Lưu
 const saveBtn = document.getElementById('btnCapNhat');
 saveBtn.addEventListener('click', updatePerson);
 
+const resetForm = () => {
+    document.getElementById("form").reset();
+
+}
 
 
+//Xử lý loại người dùng
 window.showFields = (selectId) => {
-    // Ẩn tất cả các div
     document.getElementById("studentFields").style.display = "none";
     document.getElementById("employeeFields").style.display = "none";
     document.getElementById("customerFields").style.display = "none";
 
-    // Hiển thị div tương ứng với select được chọn
     if (selectId === "loaiND") {
         const select = document.getElementById(selectId);
         const selectedOption = select.options[select.selectedIndex].text;
@@ -155,25 +159,20 @@ const searchInput = document.getElementById('search');
 
 searchInput.addEventListener('input', searchPersonsByName);
 
+//Tìm kiếm theo tên
 function searchPersonsByName() {
     const keyword = searchInput.value.toLowerCase();
-
-    // Lấy danh sách người dùng từ local storage
     const storedPersons = localStorage.getItem('persons');
     let persons = [];
 
     if (storedPersons) {
         persons = JSON.parse(storedPersons);
     }
-
-    // Lọc danh sách người dùng theo tên
     const searchPerson = persons.filter(person => person.name.toLowerCase().includes(keyword));
-
-    // Hiển thị danh sách người dùng đã lọc
     renderPersons(searchPerson);
 }
 
-
+//Hiển thị danh sách khi load trang
 window.addEventListener('DOMContentLoaded', () => {
     listPerson.loadFromLocalStorage();
     renderPersons(listPerson.persons);

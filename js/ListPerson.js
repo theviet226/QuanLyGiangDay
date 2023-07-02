@@ -21,9 +21,9 @@ export class ListPerson {
         const index = this.findIndex(id);
         if (index !== -1) {
             this.persons[index] = updatedPerson;
-            return true; // Trả về true nếu cập nhật thành công
+            return true; 
         }
-        return false; // Trả về false nếu không tìm thấy người dùng
+        return false; 
     }
 
 

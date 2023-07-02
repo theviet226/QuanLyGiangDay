@@ -9,6 +9,19 @@ import { renderPersons } from "./renderPerson.js"
 
 
 export const listPerson = new ListPerson();
+const checkId = (id) => {
+    const idSpan = document.getElementById('tbMa');
+
+    if (listPerson.isIdDuplicate(id)) {
+        idSpan.textContent = 'Mã người dùng đã tồn tại';
+        idSpan.classList.add('text-danger');
+        return false; 
+    } else {
+        idSpan.textContent = ''; 
+        idSpan.classList.remove('text-danger');
+        return true; 
+    }
+};
 const addPerson = () => {
     const name = document.getElementById('txtName').value;
     const address = document.getElementById('txtDiaChi').value;
@@ -34,6 +47,10 @@ const addPerson = () => {
         const rating = document.getElementById('txtDanhGia').value;
         person = new Customer(name, address, id, email, companyName, orderValue, rating);
     }
+    if (!checkId(id)) {
+        return; // Không thêm người dùng nếu mã trùng lặp
+    }
+
     listPerson.addPerson(person);
 
     console.log(listPerson.persons);
@@ -48,10 +65,6 @@ document.getElementById("btnThemND").addEventListener("click", addPerson);
 
 //Cập nhập người dùng
 const updatePerson = () => {
-    listPerson.loadFromLocalStorage(); 
-    console.log(listPerson)
-
-   
     const id = document.getElementById('txtMa').value;
     const name = document.getElementById('txtName').value;
     const address = document.getElementById('txtDiaChi').value;
@@ -63,24 +76,23 @@ const updatePerson = () => {
     if (type === 'Học viên') {
         const math = +document.getElementById('txtDiemToan').value;
         const physics = +document.getElementById('txtDiemLy').value;
-        const chemistry = +document.getElementById('txtDiemHoa').value;   
-        person = new Student(id, name, address, email, math, physics, chemistry);
+        const chemistry = +document.getElementById('txtDiemHoa').value;
+        person = new Student(name, address, id, email, math, physics, chemistry);
         person.getAverage();
     } else if (type === 'Nhân viên') {
         const workDays = +document.getElementById('txtNgayLam').value;
         const dailySalary = +document.getElementById('txtLuong').value;
-        person = new Employee(id, name, address, email, workDays, dailySalary);
+        person = new Employee(name, address, id, email, workDays, dailySalary);
         person.getSalary();
     } else if (type === 'Khách hàng') {
         const companyName = document.getElementById('txtTenCT').value;
         const orderValue = document.getElementById('txtTriGiaHD').value;
         const rating = document.getElementById('txtDanhGia').value;
-        person = new Customer(id, name, address, email, companyName, orderValue, rating);
+        person = new Customer(name, address, id, email, companyName, orderValue, rating);
     }
 
-
-    const isUpdated = listPerson.updatePerson(person);
-    console.log(isUpdated)
+    const isUpdated = listPerson.updatePerson(id, person);
+    console.log(isUpdated);
 
     if (isUpdated) {
         listPerson.saveToLocalStorage();
@@ -91,11 +103,17 @@ const updatePerson = () => {
         showNotification('Không tìm thấy người dùng', false);
     }
 };
+
+
+
+
+
 const saveBtn = document.getElementById('btnCapNhat');
 saveBtn.addEventListener('click', updatePerson);
 
 const resetForm = () => {
     document.getElementById("form").reset();
+    document.getElementById('txtMa').disabled=false
 
 }
 
@@ -137,9 +155,9 @@ let sortOrder = 'asc';
 const sortByNameBtn = document.getElementById('sortByNameBtn');
 const sortArrowIcon = document.getElementById('sortArrowIcon');
 
-sortByNameBtn.addEventListener('click', sortPersonsByName);
 
-function sortPersonsByName() {
+
+const sortPersonsByName = () => {
     listPerson.sortPersonsByName(sortOrder);
 
     if (sortOrder === 'asc') {
@@ -151,16 +169,17 @@ function sortPersonsByName() {
         sortArrowIcon.classList.remove('fa-sort-up');
         sortArrowIcon.classList.add('fa-sort-down');
     }
+
     renderPersons(listPerson.persons);
-}
+};
+sortByNameBtn.addEventListener('click', sortPersonsByName);
 
 
 const searchInput = document.getElementById('search');
 
-searchInput.addEventListener('input', searchPersonsByName);
 
 //Tìm kiếm theo tên
-function searchPersonsByName() {
+const searchPersonsByName = () => {
     const keyword = searchInput.value.toLowerCase();
     const storedPersons = localStorage.getItem('persons');
     let persons = [];
@@ -168,9 +187,11 @@ function searchPersonsByName() {
     if (storedPersons) {
         persons = JSON.parse(storedPersons);
     }
+
     const searchPerson = persons.filter(person => person.name.toLowerCase().includes(keyword));
     renderPersons(searchPerson);
-}
+};
+searchInput.addEventListener('input', searchPersonsByName);
 
 //Hiển thị danh sách khi load trang
 window.addEventListener('DOMContentLoaded', () => {

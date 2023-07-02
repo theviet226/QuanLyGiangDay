@@ -157,6 +157,7 @@ const handleShowUser = (event) => {
             document.getElementById('txtName').value = userInfo.name;
             document.getElementById('txtDiaChi').value = userInfo.address;
             document.getElementById('txtMa').value = userInfo.id;
+            document.getElementById('txtMa').disable=true;
             document.getElementById('txtEmail').value = userInfo.email;
             document.getElementById('loaiND').value = userInfo.type;
             window.showFields('loaiND');

@@ -7,6 +7,9 @@ export class ListPerson {
     addPerson(person) {
         this.persons.push(person);
     }
+    isIdDuplicate(id) {
+        return this.persons.some(person => person.id === id);
+    }
     removePerson(id) {
         this.persons = this.persons.filter(person => person.id !== id);
     }
@@ -14,12 +17,15 @@ export class ListPerson {
         return this.persons.findIndex(person => person.id === id);
     }
 
-    updatePerson(id, updatedPerson) {
-        const index = this.persons.findIndex(person => person.id === id);
+    updatePerson(id,updatedPerson) {
+        const index = this.findIndex(id);
         if (index !== -1) {
             this.persons[index] = updatedPerson;
+            return true; // Trả về true nếu cập nhật thành công
         }
+        return false; // Trả về false nếu không tìm thấy người dùng
     }
+
 
     filterByType(selectedType) {
         if (selectedType === 'ALL') {
@@ -60,3 +66,7 @@ export class ListPerson {
         }
     }
 }
+
+
+
+

@@ -48,6 +48,7 @@ const addPerson = () => {
         person = new Customer(name, address, id, email, companyName, orderValue, rating);
     }
     if (!checkId(id)) {
+        showNotification("Thêm thất bại", false);
         return; // Không thêm người dùng nếu mã trùng lặp
     }
 
